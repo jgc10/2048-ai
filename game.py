@@ -10,12 +10,18 @@ class Game:
     def __init__(self, size = 4):
         self.size = size
         self.board = [[0 for _ in range(self.size)] for _ in range(self.size)]
+        self.score = 0
 
     def print(self):
         """
         Print the board in a formatted grid.
         """
-        print("+" + "-" * (self.size * 5 + 1) + "+")        # top border
+        board_width = self.size * 5 + 1
+
+        # Score header
+        print("+" + "-" * board_width + "+")
+        print(f"| Score: {self.score:<{board_width - 8}}" + "|")
+        print("+" + "-" * board_width + "+")
 
         for row in self.board:
             print("|", end="")                              # left border
@@ -28,7 +34,7 @@ class Game:
             
             print(" |")                                     # right border and new line
         
-        print("+" + "-" * (self.size * 5 + 1) + "+")        # bottom border
+        print("+" + "-" * board_width + "+")        # bottom border
     
     def get_empty_tiles(self):
         """
@@ -112,6 +118,7 @@ class Game:
                     row_values[tile_index] == row_values[tile_index + 1]
                 ):
                     new_row[new_index] = row_values[tile_index] * 2
+                    self.score += new_row[new_index]
                     new_index += 1
                     tile_index += 2
                 else:
@@ -147,6 +154,7 @@ class Game:
                     row_values[tile_index] == row_values[tile_index - 1]
                 ):
                     new_row[new_index] = row_values[tile_index] * 2
+                    self.score += new_row[new_index]
                     new_index -= 1
                     tile_index -= 2
                 else:
@@ -184,6 +192,7 @@ class Game:
                     col_values[tile_index] == col_values[tile_index + 1]
                 ):
                     new_col[next_index] = col_values[tile_index] * 2
+                    self.score += new_col[next_index]
                     next_index += 1
                     tile_index += 2
                 else:
@@ -217,6 +226,7 @@ class Game:
             while i >= 0:
                 if i > 0 and col_values[i] == col_values[i - 1]:
                     new_col[next_empty] = col_values[i] * 2
+                    self.score += new_col[next_empty]
                     next_empty -= 1
                     i -= 2
                 else:
