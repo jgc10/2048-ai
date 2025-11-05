@@ -184,20 +184,20 @@ class Game:
             tile_index = 0                                      # index of the tile being checked
 
             new_col = [0 for _ in range(self.size)]             # the new, merged column
-            next_index = 0                                      # index of the next tile to fill
+            new_index = 0                                       # index of the next tile to fill
 
             while tile_index < len(col_values):
                 if (
                     tile_index < ( len(col_values) - 1) and
                     col_values[tile_index] == col_values[tile_index + 1]
                 ):
-                    new_col[next_index] = col_values[tile_index] * 2
-                    self.score += new_col[next_index]
-                    next_index += 1
+                    new_col[new_index] = col_values[tile_index] * 2
+                    self.score += new_col[new_index]
+                    new_index += 1
                     tile_index += 2
                 else:
-                    new_col[next_index] = col_values[tile_index]
-                    next_index += 1
+                    new_col[new_index] = col_values[tile_index]
+                    new_index += 1
                     tile_index += 1
             
             for j in range(self.size):              # insert the new column
@@ -221,17 +221,17 @@ class Game:
             i = len(col_values) - 1                     # index of the tile being checked
 
             new_col = [0 for _ in range(self.size)]    # the new, merged column
-            next_empty = self.size - 1                 # index of the next tile to fill
+            new_index = self.size - 1                  # index of the next tile to fill
 
             while i >= 0:
                 if i > 0 and col_values[i] == col_values[i - 1]:
-                    new_col[next_empty] = col_values[i] * 2
-                    self.score += new_col[next_empty]
-                    next_empty -= 1
+                    new_col[new_index] = col_values[i] * 2
+                    self.score += new_col[new_index]
+                    new_index -= 1
                     i -= 2
                 else:
-                    new_col[next_empty] = col_values[i]
-                    next_empty -= 1
+                    new_col[new_index] = col_values[i]
+                    new_index -= 1
                     i -= 1
             
             for j in range(self.size):              # insert the new column
