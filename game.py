@@ -69,41 +69,74 @@ class Game:
         Returns true if there are no more available moves.
         """
 
-        # If there are empty tiles, there is a possible move
-        if self.get_empty_tiles():
+        if self.get_legal_moves():
             return False
-
-        # Check if any neighboring tiles can be merged
-        for x in range(self.size):
-            for y in range(self.size):
-                tile = self.board[x][y]     # the tile being checked
-
-                # Check top neighbor
-                if x > 0 and tile == self.board[x - 1][y]:
-                    return False
-
-                # Check bottom neighbor
-                if x < (self.size - 1) and tile == self.board[x + 1][y]:
-                    return False
-
-                # Check left neighbor
-                if y > 0 and tile == self.board[x][y - 1]:
-                    return False
-
-                # Check right neighbor
-                if y < (self.size - 1) and tile == self.board[x][y + 1]:
-                    return False
         
         # There are no remaining moves
         return True
     
+    def get_legal_moves(self):
+        """
+        :return: Set of legal moves
+        """
+        legal_moves = set()
+
+        for row in self.board:
+            for x in range(len(row) - 1):
+                if (
+                    (row[x] == 0 and row[x + 1] != 0) or
+                    (row[x] != 0 and row[x] == row[x + 1])
+                ):
+                    legal_moves.add("LEFT")
+                    break
+            
+            if "LEFT" in legal_moves:
+                break
+            
+        for row in self.board:
+            for x in range(len(row) - 1, 0, -1):
+                if (
+                    (row[x] == 0 and row[x - 1] != 0) or
+                    (row[x] != 0 and row[x] == row[x - 1])
+                ):
+                    legal_moves.add("RIGHT")
+                    break
+            
+            if "RIGHT" in legal_moves:
+                break
+        
+        for i in range(self.size):
+            col = [row[i] for row in self.board]
+            for y in range(len(col) - 1):
+                if (
+                    (col[y] == 0 and col[y + 1] != 0) or
+                    (col[y] != 0 and col[y] == col[y + 1])
+                ):
+                    legal_moves.add("UP")
+                    break
+            
+            if "UP" in legal_moves:
+                break
+        
+        for i in range(self.size):
+            col = [row[i] for row in self.board]
+            for y in range(len(col) - 1, 0, -1):
+                if (
+                    (col[y] == 0 and col[y - 1] != 0) or
+                    (col[y] != 0 and col[y] == col[y - 1])
+                ):
+                    legal_moves.add("DOWN")
+                    break
+            
+            if "DOWN" in legal_moves:
+                break
+        
+        return legal_moves
+    
     def move_left(self):
         """
         Moves tiles to the left and merges like tiles.
-        Returns true if the move was valid.
         """
-
-        old_board = copy.deepcopy(self.board)
 
         for x, row in enumerate(self.board):
             row_values = [n for n in row if n != 0]     # the current row, excluding empty tiles
@@ -127,19 +160,11 @@ class Game:
                     tile_index += 1
             
             self.board[x] = new_row     # insert the new row
-        
-        if old_board == self.board:     # if the board did not change
-            return False                # this was not a legal move
-        else:
-            return True
     
     def move_right(self):
         """
         Moves tiles to the right and merges like tiles.
-        Returns true if the move was valid.
         """
-
-        old_board = copy.deepcopy(self.board)
 
         for x, row in enumerate(self.board):
             row_values = [n for n in row if n != 0]     # the current row, excluding empty tiles
@@ -163,19 +188,11 @@ class Game:
                     tile_index -= 1
             
             self.board[x] = new_row     # insert the new row
-        
-        if old_board == self.board:     # if the board did not change
-            return False                # this was not a legal move
-        else:
-            return True
     
     def move_up(self):
         """
         Moves tiles up and merges like tiles.
-        Returns true if the move was valid.
         """
-
-        old_board = copy.deepcopy(self.board)
 
         for y in range(self.size):
             col_values = [
@@ -202,19 +219,11 @@ class Game:
             
             for j in range(self.size):              # insert the new column
                 self.board[j][y] = new_col[j]
-        
-        if old_board == self.board:     # if the board did not change
-            return False                # this was not a legal move
-        else:
-            return True
     
     def move_down(self):
         """
         Moves tiles down and merges like tiles.
-        Returns true if the move was valid.
         """
-
-        old_board = copy.deepcopy(self.board)
 
         for y in range(self.size):
             col_values = [row[y] for row in self.board if row[y] != 0]
@@ -236,11 +245,6 @@ class Game:
             
             for j in range(self.size):              # insert the new column
                 self.board[j][y] = new_col[j]
-        
-        if old_board == self.board:     # if the board did not change
-            return False                # this was not a legal move
-        else:
-            return True
     
     def play(self):
         """
@@ -254,21 +258,21 @@ class Game:
         while not self.is_game_over():
             self.print()
 
+            legal_moves = self.get_legal_moves()
             move = input("Enter move (w, a, s, d): ")
-            valid = False
-            if move == "w":
-                valid = self.move_up()
-            elif move == "s":
-                valid = self.move_down()
-            elif move == "a":
-                valid = self.move_left()
-            elif move == "d":
-                valid = self.move_right()
+
+            if move == "a" and "LEFT" in legal_moves:
+                self.move_left()
+            elif move == "d" and "RIGHT" in legal_moves:
+                self.move_right()
+            elif move == "w" and "UP" in legal_moves:
+                self.move_up()
+            elif move == "s" and "DOWN" in legal_moves:
+                self.move_down()
             else:
                 continue
 
-            if valid:
-                self.spawn_tile()
+            self.spawn_tile()
         
         self.print()
         print("Game over!")
