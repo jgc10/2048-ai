@@ -4,15 +4,18 @@ import copy
 
 class Game:
     """
-    The 2048 game class
+    A game of 2048.
+
+    An instance of this class includes the board and score, and all methods used to modify
+    the state of the game.
     """
 
-    def __init__(self, size = 4):
+    def __init__(self, size: int = 4):
         self.size = size
         self.board = [[0 for _ in range(self.size)] for _ in range(self.size)]
         self.score = 0
 
-    def print(self):
+    def print(self) -> None:
         """
         Print the board in a formatted grid.
         """
@@ -24,21 +27,23 @@ class Game:
         print("+" + "-" * board_width + "+")
 
         for row in self.board:
-            print("|", end="")                              # left border
+            print("|", end="")
 
             for tile in row:
                 if tile == 0:
-                    print("{:>5}".format("."), end="")      # do not print zeros
+                    print("{:>5}".format("."), end="")      # print "." for empty tiles
                 else:
                     print("{:>5}".format(tile), end="")
             
-            print(" |")                                     # right border and new line
+            print(" |")
         
-        print("+" + "-" * board_width + "+")        # bottom border
+        print("+" + "-" * board_width + "+")
     
-    def get_empty_tiles(self):
+    def get_empty_tiles(self) -> list[tuple[int, int]]:
         """
-        Returns x, y positions of empty tiles.
+        Get a list of empty tiles.
+
+        :return Empty tiles: List of (x, y) positions of empty tiles.
         """
         empty_tiles = []
 
@@ -49,35 +54,25 @@ class Game:
         
         return empty_tiles
     
-    def spawn_tile(self):
+    def spawn_tile(self) -> None:
         """
-        Adds a 2 or 4 tile randomly to the board.
+        Adds a 2 or 4 tile to board at a random position.
         """
         new_tile = 2 if random.random() < 0.9 else 4        # 90% chance for 2 tile, 10% for 4 tile
 
         empty_tiles = self.get_empty_tiles()
 
         if empty_tiles:
-            x, y = random.choice(empty_tiles)               # pick a random empty tile
+            x, y = random.choice(empty_tiles)
             self.board[x][y] = new_tile
         else:
             raise ValueError("Cannot add new tile: board is full.")
-
-
-    def is_game_over(self):
-        """
-        Returns true if there are no more available moves.
-        """
-
-        if self.get_legal_moves():
-            return False
-        
-        # There are no remaining moves
-        return True
     
-    def get_legal_moves(self):
+    def get_legal_moves(self) -> set[str]:
         """
-        :return: Set of legal moves
+        Get the moves that can be made on the current board. Possible moves include: "LEFT", "RIGHT", "UP", "DOWN".
+
+        :return Legal moves: Set of legal moves.
         """
         legal_moves = set()
 
@@ -132,19 +127,33 @@ class Game:
                 break
         
         return legal_moves
+
+    def is_game_over(self) -> bool:
+        """
+        Check if there are no more available moves.
+
+        :return Game over: True the game is over, false otherwise.
+        """
+
+        if self.get_legal_moves():
+            return False
+        else:
+            return True
     
-    def move_left(self):
+    def move_left(self) -> int:
         """
         Moves tiles to the left and merges like tiles.
+
+        :return Points: the # of points added to the total score from making this move.
         """
         new_score = 0
 
         for x, row in enumerate(self.board):
-            row_values = [n for n in row if n != 0]     # the current row, excluding empty tiles
-            tile_index = 0                              # index of the tile being checked
+            row_values = [n for n in row if n != 0]
+            tile_index = 0
 
-            new_row = [0 for _ in range(self.size)]     # the new, merged row
-            new_index = 0                               # index of the next tile to fill
+            new_row = [0 for _ in range(self.size)]
+            new_index = 0
 
             while tile_index < len(row_values):
                 if (
@@ -160,23 +169,25 @@ class Game:
                     new_index += 1
                     tile_index += 1
             
-            self.board[x] = new_row     # insert the new row
+            self.board[x] = new_row
 
         self.score += new_score
         return new_score
     
-    def move_right(self):
+    def move_right(self) -> int:
         """
         Moves tiles to the right and merges like tiles.
+
+        :return Points: the # of points added to the total score from making this move.
         """
         new_score = 0
 
         for x, row in enumerate(self.board):
-            row_values = [n for n in row if n != 0]     # the current row, excluding empty tiles
-            tile_index = len(row_values) - 1            # index of the tile being checked
+            row_values = [n for n in row if n != 0]
+            tile_index = len(row_values) - 1
             
-            new_row = [0 for _ in range(self.size)]     # the new, merged row
-            new_index = self.size - 1                   # index of the next tile to fill
+            new_row = [0 for _ in range(self.size)]
+            new_index = self.size - 1
 
             while tile_index >= 0:
                 if (
@@ -192,25 +203,27 @@ class Game:
                     new_index -= 1
                     tile_index -= 1
             
-            self.board[x] = new_row     # insert the new row
+            self.board[x] = new_row
         
         self.score += new_score
         return new_score
     
-    def move_up(self):
+    def move_up(self) -> int:
         """
         Moves tiles up and merges like tiles.
+
+        :return Points: the # of points added to the total score from making this move.
         """
         new_score = 0
 
         for y in range(self.size):
             col_values = [
-                row[y] for row in self.board if row[y] != 0     # the current column, excluding empty tiles
+                row[y] for row in self.board if row[y] != 0
             ]
-            tile_index = 0                                      # index of the tile being checked
+            tile_index = 0
 
-            new_col = [0 for _ in range(self.size)]             # the new, merged column
-            new_index = 0                                       # index of the next tile to fill
+            new_col = [0 for _ in range(self.size)]
+            new_index = 0
 
             while tile_index < len(col_values):
                 if (
@@ -226,24 +239,26 @@ class Game:
                     new_index += 1
                     tile_index += 1
             
-            for j in range(self.size):              # insert the new column
+            for j in range(self.size):
                 self.board[j][y] = new_col[j]
         
         self.score += new_score
         return new_score
     
-    def move_down(self):
+    def move_down(self) -> int:
         """
         Moves tiles down and merges like tiles.
+
+        :return Points: the # of points added to the total score from making this move.
         """
         new_score = 0
 
         for y in range(self.size):
             col_values = [row[y] for row in self.board if row[y] != 0]
-            i = len(col_values) - 1                     # index of the tile being checked
+            i = len(col_values) - 1
 
-            new_col = [0 for _ in range(self.size)]    # the new, merged column
-            new_index = self.size - 1                  # index of the next tile to fill
+            new_col = [0 for _ in range(self.size)]
+            new_index = self.size - 1
 
             while i >= 0:
                 if i > 0 and col_values[i] == col_values[i - 1]:
@@ -256,15 +271,15 @@ class Game:
                     new_index -= 1
                     i -= 1
             
-            for j in range(self.size):              # insert the new column
+            for j in range(self.size):
                 self.board[j][y] = new_col[j]
 
         self.score += new_score
         return new_score
     
-    def play(self):
+    def play(self) -> None:
         """
-        Play the game
+        Run an interactive terminal game.
         """
 
         # Start with 2 tiles
