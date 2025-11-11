@@ -137,6 +137,7 @@ class Game:
         """
         Moves tiles to the left and merges like tiles.
         """
+        new_score = 0
 
         for x, row in enumerate(self.board):
             row_values = [n for n in row if n != 0]     # the current row, excluding empty tiles
@@ -151,7 +152,7 @@ class Game:
                     row_values[tile_index] == row_values[tile_index + 1]
                 ):
                     new_row[new_index] = row_values[tile_index] * 2
-                    self.score += new_row[new_index]
+                    new_score += new_row[new_index]
                     new_index += 1
                     tile_index += 2
                 else:
@@ -160,11 +161,15 @@ class Game:
                     tile_index += 1
             
             self.board[x] = new_row     # insert the new row
+
+        self.score += new_score
+        return new_score
     
     def move_right(self):
         """
         Moves tiles to the right and merges like tiles.
         """
+        new_score = 0
 
         for x, row in enumerate(self.board):
             row_values = [n for n in row if n != 0]     # the current row, excluding empty tiles
@@ -179,7 +184,7 @@ class Game:
                     row_values[tile_index] == row_values[tile_index - 1]
                 ):
                     new_row[new_index] = row_values[tile_index] * 2
-                    self.score += new_row[new_index]
+                    new_score += new_row[new_index]
                     new_index -= 1
                     tile_index -= 2
                 else:
@@ -188,11 +193,15 @@ class Game:
                     tile_index -= 1
             
             self.board[x] = new_row     # insert the new row
+        
+        self.score += new_score
+        return new_score
     
     def move_up(self):
         """
         Moves tiles up and merges like tiles.
         """
+        new_score = 0
 
         for y in range(self.size):
             col_values = [
@@ -209,7 +218,7 @@ class Game:
                     col_values[tile_index] == col_values[tile_index + 1]
                 ):
                     new_col[new_index] = col_values[tile_index] * 2
-                    self.score += new_col[new_index]
+                    new_score += new_col[new_index]
                     new_index += 1
                     tile_index += 2
                 else:
@@ -219,11 +228,15 @@ class Game:
             
             for j in range(self.size):              # insert the new column
                 self.board[j][y] = new_col[j]
+        
+        self.score += new_score
+        return new_score
     
     def move_down(self):
         """
         Moves tiles down and merges like tiles.
         """
+        new_score = 0
 
         for y in range(self.size):
             col_values = [row[y] for row in self.board if row[y] != 0]
@@ -235,7 +248,7 @@ class Game:
             while i >= 0:
                 if i > 0 and col_values[i] == col_values[i - 1]:
                     new_col[new_index] = col_values[i] * 2
-                    self.score += new_col[new_index]
+                    new_score += new_col[new_index]
                     new_index -= 1
                     i -= 2
                 else:
@@ -245,6 +258,9 @@ class Game:
             
             for j in range(self.size):              # insert the new column
                 self.board[j][y] = new_col[j]
+
+        self.score += new_score
+        return new_score
     
     def play(self):
         """
