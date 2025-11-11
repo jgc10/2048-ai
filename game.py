@@ -10,10 +10,20 @@ class Game:
     the state of the game.
     """
 
-    def __init__(self, size: int = 4):
+    def __init__(self, size: int = 4) -> None:
+        """
+        Initialize the score to 0, and create the game board.
+
+        Add two starting tile to the board.
+        """
+        self.score = 0
+
         self.size = size
         self.board = [[0 for _ in range(self.size)] for _ in range(self.size)]
-        self.score = 0
+
+        # Initialize the board with two tiles
+        self.spawn_tile()
+        self.spawn_tile()
 
     def print(self) -> None:
         """
@@ -281,11 +291,6 @@ class Game:
         """
         Run an interactive terminal game.
         """
-
-        # Start with 2 tiles
-        self.spawn_tile()
-        self.spawn_tile()
-
         while not self.is_game_over():
             self.print()
 
