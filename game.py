@@ -48,6 +48,14 @@ class Game:
             print(" |")
         
         print("+" + "-" * board_width + "+")
+
+    def copy(self) -> "Game":
+        """
+        Create a deep copy of the current game.
+
+        :return Game: An instance of the current game.
+        """
+        return copy.deepcopy(self)
     
     def get_empty_tiles(self) -> list[tuple[int, int]]:
         """
