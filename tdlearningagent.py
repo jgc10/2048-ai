@@ -124,16 +124,19 @@ class TdLearningAgent:
     
     def get_best_action(self, state: Game) -> str:
         """
+        Returns the action that yields the most reward from the current state.
+
+        :param state: The game to take an action on.
+        :return action: The action with the greatest reward (LEFT, RIGHT, UP, DOWN). 
         """
-        max_action = "NULL"
-        max_value = -999999
+        best = ("NULL", -999999)
 
         for action in state.get_legal_moves():
             value = self.evaluate(state, action)
-            if value > max_value:
-                max_action = action
+            if value > best[1]:
+                best = (action, value)
         
-        return max_action
+        return best[0]
 
     def rotate(self, state: Game, n: int = 1) -> Game:
         """
