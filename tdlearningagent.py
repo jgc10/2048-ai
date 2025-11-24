@@ -34,7 +34,7 @@ class TdLearningAgent:
         
         return self.LUT[ntuple][feature]
     
-    def extract_feature(self, state: Game, ntuple: tuple[tuple[int]]) -> tuple[int]:
+    def extract_feature(self, ntuple: tuple[tuple[int]], state: Game) -> tuple[int]:
         """
         Extract the values from a state, where the positions are specified by a tuple.
         """
@@ -49,7 +49,7 @@ class TdLearningAgent:
 
         for s in states:
             for ntuple in self.ntuples:
-                feature = self.extract_feature(s, ntuple)
+                feature = self.extract_feature(ntuple, s)
                 total += self.lookup(ntuple, feature)
         
         return total
@@ -115,10 +115,12 @@ class TdLearningAgent:
         """
         """
         next_action = self.get_best_action(next_state)
-        s, r = self.compute_afterstate(next_state, next_action)
+        next_afterstate, next_reward = self.compute_afterstate(next_state, next_action)
         
         for ntuple in self.ntuples:
-            self.LUT[ntuple][afterstate] = self.lookup(ntuple, afterstate) + self.learning_rate * (r + self.lookup(ntuple, s) - self.lookup(ntuple, afterstate))
+            afterstate_feature = self.extract_feature(ntuple, afterstate)
+            v_sp = self.lookup(ntuple, afterstate_feature)
+            self.LUT[ntuple][afterstate_feature] = v_sp + self.learning_rate * (next_reward + self.value_function(next_afterstate) - self.value_function(afterstate))
     
     def get_best_action(self, state: Game) -> str:
         """
