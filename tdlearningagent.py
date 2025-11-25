@@ -132,6 +132,12 @@ class TdLearningAgent:
         elif action == "DOWN":
             reward = afterstate.move_down()
         else:
+            print(f"DEBUG: Invalid action.\nGame over: {state.is_game_over()}\nLegal moves: {state.get_legal_moves()}")
+
+            for move in state.get_legal_moves():
+                print(f"{move} value: {self.evaluate(state, move)}")
+            
+            state.print()
             raise ValueError(f"Invalid move: {action}")
         
         return afterstate, reward
