@@ -1,5 +1,5 @@
-import random
 from game import Game
+import statistics
 
 
 class TdLearningAgent:
@@ -217,4 +217,24 @@ class TdLearningAgent:
 
 if __name__ == "__main__":
     agent = TdLearningAgent()
-    game = Game()
+
+    scores = []
+    tiles = []
+
+    print("+--------------------------------------------------+")
+    print("| Statistics from last 100 episodes:               |")
+    print("|--------------------------------------------------|")
+    print("| Episodes       | Mean Score     | Max Tile       |")
+    print("|----------------|----------------|----------------|")
+
+    for i in range(1, 10001):
+        game = agent.play_game()
+        scores.append(game.score)
+        tiles.append(max(max(row) for row in game.board))
+
+        # Print row every 100 episodes
+        if i % 100 == 0:
+            print("| {:>14} | {:>14.2f} | {:>14} |".format(i, statistics.mean(scores), max(tiles)))
+
+            score = []
+            tiles = []
