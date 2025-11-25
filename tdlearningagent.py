@@ -191,12 +191,12 @@ class TdLearningAgent:
         
         return best[0]
     
-    def play_game(self):
+    def play_game(self) -> Game:
         """
         The main training loop. Starts a new game, makes decisions by querying the LUTS
         and learns by updating their values.
 
-        :return score: The final score of the game played.
+        :return state: The state of the finished game.
         """
         state = Game()
         score = 0
@@ -212,7 +212,7 @@ class TdLearningAgent:
             score += reward
             state = next_state
 
-        return score
+        return state
 
 
 if __name__ == "__main__":
