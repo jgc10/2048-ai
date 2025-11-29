@@ -1,6 +1,7 @@
 from game import Game
 import statistics
 import pickle
+import random
 
 class TdLearningAgent:
     """
@@ -18,12 +19,20 @@ class TdLearningAgent:
             ((0, 0), (0, 1), (0, 2), (1, 0), (1, 2), (2, 2))
         )
         self.m = len(self.ntuples)
-        self.learning_rate = 0.08
+        self.learning_rate = 0.005
         self.LUT = {}
+        # self.epsilon = 0.1 
+        # self.epsilon_min = 0.01
+        # self.epsilon_decay = 0.9999
+
+        self.epsilon = 0.05
+        self.epsilon_min = 0.005
+        self.epsilon_decay = 0.9999
 
         # Initialize lookup tables
         for ntuple in self.ntuples:
             self.LUT[ntuple] = {}
+        
 
     def rotate(self, state: Game, n: int = 1) -> Game:
         """
@@ -143,7 +152,7 @@ class TdLearningAgent:
         """
         afterstate, reward = self.compute_afterstate(state, action)
 
-        states = self.symmetries(afterstate)
+        '''states = self.symmetries(afterstate)
 
         value = 0
 
@@ -151,7 +160,17 @@ class TdLearningAgent:
             for ntuple in self.ntuples:
                 value += self.v(ntuple, s)
 
-        return reward + value
+        return reward + value'''
+        max_tile = max(max(row) for row in afterstate.board)
+        tile_bonus = max_tile * 0.1 
+        
+        states = self.symmetries(afterstate)
+        value = 0
+        for s in states:
+            for ntuple in self.ntuples:
+                value += self.v(ntuple, s)
+
+        return reward + tile_bonus + value
 
     def learn_evaluation(self, state: Game, action: str, reward: int, afterstate: Game, next_state: Game):
         """
@@ -163,8 +182,9 @@ class TdLearningAgent:
         :param afterstate: The afterstate to update the LUT value for.
         :param next_state: The state after adding a new tile to the afterstate.
         """
-        next_action = self.get_best_action(next_state)
+        next_action = self.get_best_action(next_state, explore=False)
         next_afterstate, next_reward = self.compute_afterstate(next_state, next_action)
+    
         
         afterstates = self.symmetries(afterstate)
 
@@ -175,14 +195,21 @@ class TdLearningAgent:
                     self.v(ntuple, s) + (self.learning_rate / self.m) * (next_reward + self.v(ntuple, next_afterstate) - self.v(ntuple, s))
                 )
     
-    def get_best_action(self, state: Game) -> str:
+    def get_best_action(self, state: Game, explore: bool = True) -> str:
         """
         Returns the action that yields the most reward from the current state.
 
         :param state: The game to take an action on.
         :return action: The action with the greatest reward (LEFT, RIGHT, UP, DOWN). 
         """
+        legal_moves = list(state.get_legal_moves())
+        
         best = ("NULL", -999999)
+
+        #if random.random() < self.epsilon:
+            #return random.choice(legal_moves)
+        if explore and random.random() < self.epsilon:
+            return random.choice(legal_moves)
 
         for action in state.get_legal_moves():
             value = self.evaluate(state, action)
@@ -224,6 +251,8 @@ class TdLearningAgent:
             score += reward
             state = next_state
 
+        self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+
         return state
 
 
@@ -234,7 +263,7 @@ if __name__ == "__main__":
     Change the i-range for better display of the episode number
     in the table as well.
     '''
-    agent.load_model('td_agent_episode_2000.pkl')
+    agent.load_model('td_agent_episode_45000.pkl')
 
     scores = []
     tiles = []
@@ -245,7 +274,7 @@ if __name__ == "__main__":
     print("| Episodes       | Mean Score     | Max Tile       |")
     print("|----------------|----------------|----------------|")
 
-    for i in range(2001, 10001):
+    for i in range(45001, 100001):
         game = agent.play_game()
         scores.append(game.score)
         tiles.append(max(max(row) for row in game.board))
@@ -253,8 +282,7 @@ if __name__ == "__main__":
         # Print row every 100 episodes
         if i % 100 == 0:
             print("| {:>14} | {:>14.2f} | {:>14} |".format(i, statistics.mean(scores), max(tiles)))
-
-            score = []
+            scores = []
             tiles = []
         if i % 1000 == 0:
             agent.save_model(f'td_agent_episode_{i}.pkl')
