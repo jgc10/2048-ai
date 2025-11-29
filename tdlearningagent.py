@@ -10,7 +10,7 @@ class TdLearningAgent:
     def __init__(self):
         self.ntuples = (
             ((0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)),
-            ((0, 1), (0, 2), (1, 1), (1, 2), (1, 1), (3, 1)),
+            ((0, 1), (0, 2), (1, 1), (1, 2), (2, 1), (3, 1)),
             ((0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (1, 1)),
             ((0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (2, 2)),
             ((0, 0), (0, 1), (0, 2), (1, 1), (2, 1), (2, 2)),
@@ -263,7 +263,7 @@ if __name__ == "__main__":
     Change the i-range for better display of the episode number
     in the table as well.
     '''
-    agent.load_model('td_agent_episode_45000.pkl')
+    #agent.load_model('td_agent_episode_45000.pkl')
 
     scores = []
     tiles = []
@@ -274,7 +274,7 @@ if __name__ == "__main__":
     print("| Episodes       | Mean Score     | Max Tile       |")
     print("|----------------|----------------|----------------|")
 
-    for i in range(45001, 100001):
+    for i in range(1, 100001):
         game = agent.play_game()
         scores.append(game.score)
         tiles.append(max(max(row) for row in game.board))
@@ -285,5 +285,5 @@ if __name__ == "__main__":
             scores = []
             tiles = []
         if i % 1000 == 0:
-            agent.save_model(f'td_agent_episode_{i}.pkl')
+            agent.save_model(f'td_agent_episode_ft{i}.pkl')
     agent.save_model('td_agent_final.pkl')
