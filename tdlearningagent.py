@@ -200,17 +200,20 @@ class TdLearningAgent:
         """
         state = Game()
         score = 0
+        history = []
 
         while not state.is_game_over():
             action = self.get_best_action(state)
 
             reward, afterstate, next_state = self.make_move(state, action)
-
-            if not next_state.is_game_over():
-                self.learn_evaluation(state, action, reward, afterstate, next_state)
+            history.append( (afterstate, next_state) )
 
             score += reward
             state = next_state
+        
+        for afterstate, next_state in list(reversed(history)):
+            if not next_state.is_game_over():
+                self.learn_evaluation(state, action, reward, afterstate, next_state)
 
         return state
 
