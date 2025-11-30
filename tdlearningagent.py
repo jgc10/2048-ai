@@ -173,13 +173,16 @@ class TdLearningAgent:
         """
         next_action = self.get_best_action(next_state)
         next_afterstate, next_reward = self.compute_afterstate(next_state, next_action)
+
+        afterstate_value = self.evaluate_state(afterstate)
+        next_afterstate_value = self.evaluate_state(next_afterstate)
         
         for ntuple in self.ntuples:
             feature = tuple([afterstate.board[x][y] for x, y in ntuple])
             self.LUT[ntuple][feature] = (
                 self.evaluate_feature(ntuple, afterstate)
                 + (self.learning_rate / self.m)
-                * (next_reward + self.evaluate_state(next_afterstate) - self.evaluate_state(afterstate))
+                * (next_reward + next_afterstate_value - afterstate_value)
             )
     
     def get_best_action(self, state: Game) -> str:
