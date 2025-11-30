@@ -65,22 +65,6 @@ class TdLearningAgent:
             states.append(self.mirror(rotated))
 
         return states
-    
-    def v(self, ntuple: tuple[tuple[int]], state: Game) -> int:
-        """
-        The value function for a feature defined by an n-tuple. Feature weights are initialized
-        to zero.
-
-        :param ntuple: The coordinates of the tiles that define an n-tuple.
-        :param state: The game state to read the tile values of.
-        :return weight: The weight of the feature.
-        """
-        feature = tuple([state.board[x][y] for x, y in ntuple])
-
-        if not feature in self.LUT[ntuple]:
-            self.LUT[ntuple][feature] = 0
-        
-        return self.LUT[ntuple][feature]
 
     def compute_afterstate(self, state: Game, action: str) -> tuple[Game, int]:
         """
@@ -106,7 +90,7 @@ class TdLearningAgent:
             print(f"DEBUG: Invalid action.\nGame over: {state.is_game_over()}\nLegal moves: {state.get_legal_moves()}")
 
             for move in state.get_legal_moves():
-                print(f"{move} value: {self.evaluate(state, move)}")
+                print(f"{move} value: {self.evaluate_action(state, move)}")
             
             state.print()
             raise ValueError(f"Invalid move: {action}")
@@ -130,12 +114,44 @@ class TdLearningAgent:
 
         return reward, afterstate, next_state
     
-    def evaluate(self, state: Game, action: str) -> int:
+    def evaluate_feature(self, ntuple: tuple[tuple[int]], state: Game) -> int:
         """
-        Evaluate an action on a state by summing the reward and value of the afterstate. The value
-        of the afterstate is the sum of all feature weights, as defined by the n-tuples, for all
-        eight symmetries of the board state. E.g., if there are eight n-tuples, the value will be
-        the sum of 8*8=64 features. 
+        Evaluate a feature of a state, which is defined by an n-tuple. Feature weights are
+        initialized to zero.
+
+        :param ntuple: The coordinates of the tiles that define an n-tuple.
+        :param state: The game state to read the tile values of.
+        :return weight: The weight of the feature.
+        """
+        feature = tuple([state.board[x][y] for x, y in ntuple])
+
+        if not feature in self.LUT[ntuple]:
+            self.LUT[ntuple][feature] = 0
+        
+        return self.LUT[ntuple][feature]
+
+    def evaluate_state(self, state: Game) -> int:
+        """
+        Evaluate a state. The value of the afterstate is the sum of all feature weights, as
+        defined by the n-tuples, for all eight symmetries of the board state. E.g., if there
+        are eight n-tuples, the value will be the sum of 8*8=64 features.
+
+        :param state: The game state to evaluate.
+        :return value: The total value of the state.
+        """
+        states = self.symmetries(state)
+
+        value = 0
+
+        for s in states:
+            for ntuple in self.ntuples:
+                value += self.evaluate_feature(ntuple, s)
+
+        return value
+    
+    def evaluate_action(self, state: Game, action: str) -> int:
+        """
+        Evaluate an action on a state by summing the reward and value of the afterstate.
 
         :param state: The game to take an action on.
         :param action: The action to take (LEFT, RIGHT, UP, DOWN).
@@ -143,17 +159,9 @@ class TdLearningAgent:
         """
         afterstate, reward = self.compute_afterstate(state, action)
 
-        states = self.symmetries(afterstate)
+        return reward + self.evaluate_state(afterstate)
 
-        value = 0
-
-        for s in states:
-            for ntuple in self.ntuples:
-                value += self.v(ntuple, s)
-
-        return reward + value
-
-    def learn_evaluation(self, state: Game, action: str, reward: int, afterstate: Game, next_state: Game):
+    def learn_evaluation(self, state: Game, action: str, reward: int, afterstate: Game, next_state: Game) -> None:
         """
         Update the value of an afterstate.
 
@@ -166,14 +174,13 @@ class TdLearningAgent:
         next_action = self.get_best_action(next_state)
         next_afterstate, next_reward = self.compute_afterstate(next_state, next_action)
         
-        afterstates = self.symmetries(afterstate)
-
-        for s in afterstates:
-            for ntuple in self.ntuples:
-                feature = tuple([s.board[x][y] for x, y in ntuple])
-                self.LUT[ntuple][feature] = (
-                    self.v(ntuple, s) + (self.learning_rate / self.m) * (next_reward + self.v(ntuple, next_afterstate) - self.v(ntuple, s))
-                )
+        for ntuple in self.ntuples:
+            feature = tuple([afterstate.board[x][y] for x, y in ntuple])
+            self.LUT[ntuple][feature] = (
+                self.evaluate_feature(ntuple, afterstate)
+                + (self.learning_rate / self.m)
+                * (next_reward + self.evaluate_state(next_afterstate) - self.evaluate_state(afterstate))
+            )
     
     def get_best_action(self, state: Game) -> str:
         """
@@ -185,7 +192,7 @@ class TdLearningAgent:
         best = ("NULL", -999999)
 
         for action in state.get_legal_moves():
-            value = self.evaluate(state, action)
+            value = self.evaluate_action(state, action)
             if value > best[1]:
                 best = (action, value)
         
