@@ -18,13 +18,48 @@ class TdLearningAgent:
             ((0, 0), (0, 1), (1, 1), (2, 0), (2, 1), (3, 1)),
             ((0, 0), (0, 1), (0, 2), (1, 0), (1, 2), (2, 2))
         )
+        """self.ntuples = (
+            (1, 5, 9, 10, 13, 14),
+            (2, 6, 10, 11, 14, 15),
+            (2, 3, 6, 7, 10, 11),
+            (3, 4, 7, 8, 11, 12)
+        )"""
         self.m = len(self.ntuples)
         self.learning_rate = 0.1
         self.LUT = {}
 
+        # Convert indices to coordinates if needed
+        if type( self.ntuples[0][0] ) is int:
+            new_ntuples = []
+            for ntuple in self.ntuples:
+                new_ntuples.append( self.make_ntuple(ntuple) )
+            self.ntuples = tuple(new_ntuples)
+
         # Initialize lookup tables
         for ntuple in self.ntuples:
             self.LUT[ntuple] = {}
+        
+    def make_ntuple(self, indices: tuple[int]) -> tuple[tuple[int]]:
+        """
+        Convert tile indices to coordinates. Makes creating new n-tuples more convenient.
+
+        +-------------------+
+        | 1  | 2  | 3  | 4  |
+        | 5  | 6  | 7  | 8  |
+        | 9  | 10 | 11 | 12 |
+        | 13 | 14 | 15 | 16 |
+        +-------------------+
+
+        :param indices: Tuple representing an n-tuple network.
+        :return: An n-tuple network that can be used for the game. 
+        """
+        coordinates = []
+        for i in indices:
+            x = (i - 1) // 4
+            y = (i - 1) % 4
+            coordinates.append((x, y))
+        
+        return tuple(coordinates)
 
     def rotate(self, state: Game, n: int = 1) -> Game:
         """
