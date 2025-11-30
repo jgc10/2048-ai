@@ -1,5 +1,6 @@
 from game import Game
 import statistics
+import time
 
 
 class TdLearningAgent:
@@ -234,12 +235,13 @@ if __name__ == "__main__":
     scores = []
     tiles = []
     boards = []
+    start_time = time.time()
 
-    print("+-------------------------------------------------------------------+")
-    print("| Statistics from last 100 episodes:                                |")
-    print("|-------------------------------------------------------------------|")
-    print("| Episodes       | Mean Score     | Mean Max Tile  | Max Tile       |")
-    print("|----------------|----------------|----------------|----------------|")
+    print("+----------------------------------------------------------------------------+")
+    print("| Statistics from last 100 episodes:                                         |")
+    print("|----------------------------------------------------------------------------|")
+    print("| Episodes   | Time       | Mean Score     | Mean Max Tile  | Max Tile       |")
+    print("|------------|------------|----------------|----------------|----------------|")
 
     for i in range(1, 100001):
         game = agent.play_game()
@@ -249,11 +251,15 @@ if __name__ == "__main__":
 
         # Print row every 100 episodes
         if i % 100 == 0:
-            print("| {:>14} | {:>14.2f} | {:>14.2f} | {:>14} |".format(i, statistics.mean(scores), statistics.mean(tiles), max(tiles)))
+            end_time = time.time()
+
+            print("| {:>10} | {:>10.2f} | {:>14.2f} | {:>14.2f} | {:>14} |".format(
+                i, end_time - start_time, statistics.mean(scores), statistics.mean(tiles), max(tiles)
+            ))
 
             #best_game = max(boards, key=lambda item: item.score)
             #best_game.print()
 
             score = []
             tiles = []
-            boards = []
+            start_time = time.time()
