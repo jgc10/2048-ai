@@ -1,6 +1,7 @@
 from game import Game
 import statistics
 import time
+import pickle
 
 
 class TdLearningAgent:
@@ -262,10 +263,44 @@ class TdLearningAgent:
                 self.learn_evaluation(state, action, reward, afterstate, next_state)
 
         return state
+    
+    def save_agent(self, filename: str = "td_agent.pkl") -> None:
+        """
+        Saves the current configuration and training data to a file.
+        
+        :param filename: Name of the file to save to.
+        """
+        with open(f"saves/{filename}", "wb") as file:
+            pickle.dump(self.learning_rate, file)
+            pickle.dump(self.ntuples, file)
+            pickle.dump(self.LUT, file)
+    
+    def load_agent(self, filename: str = "td_agent.pkl") -> None:
+        """
+        Loads an agent's configuration and training data from a file.
+        
+        :param filename: Name of the file to load from.
+        """
+        with open(f"saves/{filename}", "rb") as file:
+            self.learning_rate = pickle.load(file)
+            self.ntuples = pickle.load(file)
+            self.LUT = pickle.load(file)
+            self.m = len(self.ntuples)
 
 
 if __name__ == "__main__":
+    SAVE_FILE_NAME = ""
+    EPISODES_PER_SAVE = 5000
+
     agent = TdLearningAgent()
+
+    if SAVE_FILE_NAME:
+        try:
+            agent.load_agent(SAVE_FILE_NAME)
+            print(f"Agent data loaded from saves/{SAVE_FILE_NAME}")
+        except:
+            print(f"Failed to load agent from save: saves/{SAVE_FILE_NAME}")
+            exit()
 
     scores = []
     tiles = []
@@ -282,7 +317,10 @@ if __name__ == "__main__":
         game = agent.play_game()
         scores.append(game.score)
         tiles.append(max(max(row) for row in game.board))
-        #boards.append(game.copy())
+
+        # Save agent
+        if i % EPISODES_PER_SAVE == 0:
+            agent.save_agent(f"td_agent_{len(agent.ntuples)}x{len(agent.ntuples[0])}_{i}.pkl")
 
         # Print row every 100 episodes
         if i % 100 == 0:
@@ -291,9 +329,6 @@ if __name__ == "__main__":
             print("| {:>10} | {:>10.2f} | {:>14.2f} | {:>14.2f} | {:>14} |".format(
                 i, end_time - start_time, statistics.mean(scores), statistics.mean(tiles), max(tiles)
             ))
-
-            #best_game = max(boards, key=lambda item: item.score)
-            #best_game.print()
 
             score = []
             tiles = []
