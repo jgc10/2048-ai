@@ -26,8 +26,10 @@ class TdLearningAgent:
             (3, 4, 7, 8, 11, 12)
         )"""
         self.m = len(self.ntuples)
-        self.learning_rate = 0.1
         self.LUT = {}
+
+        self.learn = True           # True => update LUTS after episode
+        self.learning_rate = 0.1
 
         # Convert indices to coordinates if needed
         if type( self.ntuples[0][0] ) is int:
@@ -258,9 +260,10 @@ class TdLearningAgent:
             score += reward
             state = next_state
         
-        for afterstate, next_state in list(reversed(history)):
-            if not next_state.is_game_over():
-                self.learn_evaluation(state, action, reward, afterstate, next_state)
+        if self.learn:
+            for afterstate, next_state in list(reversed(history)):
+                if not next_state.is_game_over():
+                    self.learn_evaluation(state, action, reward, afterstate, next_state)
 
         return state
     
@@ -291,6 +294,7 @@ class TdLearningAgent:
 if __name__ == "__main__":
     SAVE_FILE_NAME = ""
     EPISODES_PER_SAVE = 5000
+    LEARN = True
 
     agent = TdLearningAgent()
 
@@ -304,32 +308,72 @@ if __name__ == "__main__":
 
     scores = []
     tiles = []
-    boards = []
     start_time = time.time()
+    
+    if LEARN:
+        agent.learn = True
 
-    print("+----------------------------------------------------------------------------+")
-    print("| Statistics from last 100 episodes:                                         |")
-    print("|----------------------------------------------------------------------------|")
-    print("| Episodes   | Time       | Mean Score     | Mean Max Tile  | Max Tile       |")
-    print("|------------|------------|----------------|----------------|----------------|")
+        print("+----------------------------------------------------------------------------+")
+        print("| Statistics from last 100 episodes:                                         |")
+        print("|----------------------------------------------------------------------------|")
+        print("| Episodes   | Time       | Mean Score     | Mean Max Tile  | Max Tile       |")
+        print("|------------|------------|----------------|----------------|----------------|")
 
-    for i in range(1, 100001):
-        game = agent.play_game()
-        scores.append(game.score)
-        tiles.append(max(max(row) for row in game.board))
+        for i in range(1, 100001):
+            game = agent.play_game()
+            scores.append(game.score)
+            tiles.append(max(max(row) for row in game.board))
 
-        # Save agent
-        if i % EPISODES_PER_SAVE == 0:
-            agent.save_agent(f"td_agent_{len(agent.ntuples)}x{len(agent.ntuples[0])}_{i}.pkl")
+            # Save agent
+            if i % EPISODES_PER_SAVE == 0:
+                agent.save_agent(f"td_agent_{len(agent.ntuples)}x{len(agent.ntuples[0])}_{i}.pkl")
 
-        # Print row every 100 episodes
-        if i % 100 == 0:
-            end_time = time.time()
+            # Print row every 100 episodes
+            if i % 100 == 0:
+                end_time = time.time()
 
-            print("| {:>10} | {:>10.2f} | {:>14.2f} | {:>14.2f} | {:>14} |".format(
-                i, end_time - start_time, statistics.mean(scores), statistics.mean(tiles), max(tiles)
-            ))
+                print("| {:>10} | {:>10.2f} | {:>14.2f} | {:>14.2f} | {:>14} |".format(
+                    i,
+                    end_time - start_time,
+                    statistics.mean(scores),
+                    statistics.mean(tiles),
+                    max(tiles)
+                ))
 
-            score = []
-            tiles = []
-            start_time = time.time()
+                score = []
+                tiles = []
+                start_time = time.time()
+    
+    else:
+        agent.learn = False
+
+        print("+-----------------------------------------------------------------------------------------+")
+        print("| Cumulative Gameplay Statistics:                                                         |")
+        print("|-----------------------------------------------------------------------------------------|")
+        print("| # of Games | Time     | Mean Score     | Rate of Highest Tile                           |")
+        print("|------------|----------|----------------|------------------------------------------------|")
+
+        for i in range(1, 10001):
+            game = agent.play_game()
+            scores.append(game.score)
+            tiles.append(max(max(row) for row in game.board))
+
+            # Print row every 100 episodes
+            if i % 100 == 0:
+                end_time = time.time()
+
+                max_tile_1_rate = tiles.count(max(tiles)) / len(tiles)
+                max_tile_2_rate = tiles.count(max(tiles) / 2) / len(tiles)
+                max_tile_3_rate = tiles.count(max(tiles) / 4) / len(tiles)
+
+                print("| {:>10} | {:>8.2f} | {:>14.2f} | {:>5}: {:>6.2f}%, {:>5}: {:>6.2f}%, {:>5}: {:>6.2f}% |".format(
+                    i,
+                    end_time - start_time,
+                    statistics.mean(scores),
+                    max(tiles),
+                    max_tile_1_rate * 100,
+                    max(tiles) // 2,
+                    max_tile_2_rate * 100,
+                    max(tiles) // 4,
+                    max_tile_3_rate * 100
+                ))
