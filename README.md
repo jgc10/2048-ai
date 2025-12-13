@@ -20,9 +20,9 @@ The agent's configuration and training data will automatically save to a file af
 
 The main function in `tdlearning.py` has three constants that determine the agent's training/playing:
 
-`SAVE_FILE_NAME` (default null): an agent save file that will be used to either continue training or play the game.
-`EPISODES_PER_SAVE` (default 5000): the interval of games played during training when the training data will be saved.
-`LEARN` (default true): if true, the agent will update its policy after every game played; otherwise, it will play using its current policy.
+- `SAVE_FILE_NAME` (default null): an agent save file that will be used to either continue training or play the game.
+- `EPISODES_PER_SAVE` (default 5000): the interval of games played during training when the training data will be saved.
+- `LEARN` (default true): if true, the agent will update its policy after every game played; otherwise, it will play using its current policy.
 
 To run the agent:
 
