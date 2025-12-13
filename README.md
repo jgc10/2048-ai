@@ -121,7 +121,11 @@ Rewards were given for empty tiles, higher-number tiles in corners, and merge po
 - Reached 512: 20%
 
 ## Usage
-TODO
+To run the agent:
+
+```
+$ python3 expectimaxagent.py
+```
 
 ## References
 
