@@ -55,4 +55,46 @@ TODO
 
 # Expectimax Agent
 
+`expectimaxagent.py` implements the Expectimax algorithim.
+
+The agent simulates all possible legal moves and then ranks them using a heuristic. The Expectimax search then chooses the move that leads to the maximum score while determining the different chance nodes. To increase performance, previously seen states are cached to limit the necessary computations. This Expectimax algorithm can run depths 2-4 with reasonable timing.
+
+Rewards were given for empty tiles, higher-number tiles in corners, and merge potential of multiple tiles.
+
+## Key Parts
+
+- `get_best_move`- entry point
+- `expectimax`- algorithm controller
+- `max_value`- AI decision
+- `chance_value`- randomness modeling
+- `evaluate`- scoring states
+
+## Results
+
+### Depth 2
+
+- Average score: 8321
+- Reached 2048: 0.87%
+- Reached 1024: 19.57%
+- Reached 512: 76.53%
+
+### Depth 3
+
+- Average score: 12569
+- Reached 2048: 4%
+- Reached 1024: 54%
+- Reached 512: 95%
+
+### Depth 4
+
+- Average score: 18543
+- Reached 2048: 30%
+- Reached 1024: 48%
+- Reached 512: 20%
+
+## Usage
 TODO
+
+## References
+
+T. Zhong, "AI for Game 2048", GitHub repository, 2017. Available: https://github.com/cczhong11/2048-ai/blob/master/AI%20for%202048%20write%20up.pdf
