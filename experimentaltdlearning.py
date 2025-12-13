@@ -352,20 +352,23 @@ class TdLearningAgent:
 
 
 if __name__ == "__main__":
+    SAVE_FILE_NAME = ""
+    EPISODES_PER_SAVE = 5000
+    LEARN = True
     agent = TdLearningAgent()
-    '''
-    Comment out the next line if a pickle file does not exist.
-    Change the i-range for better display of the episode number
-    in the table as well.
-    '''
-    agent.load_model('td_agent_episode_ft67000.pkl')
+
+    if SAVE_FILE_NAME:
+        try:
+            agent.load_agent(SAVE_FILE_NAME)
+            print(f"Agent data loaded from saves/{SAVE_FILE_NAME}")
+        except:
+            print(f"Failed to load agent from save: saves/{SAVE_FILE_NAME}")
+            exit()
 
     scores = []
     tiles = []
     start_time = time.time()
-    learn = False
-
-    if learn == True:
+    if LEARN == True:
         agent.learn = True
         print("+----------------------------------------------------------------------------+")
         print("| Statistics from last 100 episodes:                                         |")
@@ -388,7 +391,7 @@ if __name__ == "__main__":
                 score = []
                 tiles = []
                 start_time = time.time()
-            if i % 1000 == 0:
+            if i % EPISODES_PER_SAVE == 0:
                 agent.save_model(f'td_agent_episode_ft{i}.pkl')
     else:
         agent.learn = False
