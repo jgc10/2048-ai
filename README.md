@@ -12,9 +12,18 @@ This repository is a collection of AI agent designed to play the game 2048. Ther
 
 The agent determines the best move by evaluating afterstates using n-tuple networks. The afterstate is the state of a game board after the agent makes a move, but before a new tile spawns. N-tuple networks are required as the state space of 2048 is too large to evaluate every individual state. The 8x6 tuple network used by this agent is the optimal 8x6 network proposed by Matsuzaki.
 
-The state evalation function evaluates all eight symmetries (rotational and reflective) of the board, and returns the sum of their values. The score obtained by entering a state is used to update the values of that state's features. Episodes are learned backwards. By default, the agent uses a static learning rate of 0.1.
+The state evalation function evaluates all eight symmetries (rotational and reflective) of the board, and returns the sum of their values. The score obtained by entering a state is used to update the values of that state's features. Episodes are learned backwards.
 
 The agent's configuration and training data will automatically save to a file after a set number of episodes.
+
+## Results
+
+Below are the results of playing 2,500 games on 40,000 episodes of training with a learning rate of 0.1. These results are expected to improve with more episodes of training.
+
+- Average score: 28,619
+- Reached 8192: 0.04%
+- Reached 4096: 9.52%​
+- Reached 2048: 60.64%​
 
 ## Usage
 
