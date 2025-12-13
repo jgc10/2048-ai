@@ -51,7 +51,35 @@ H. Guei, L. -P. Chen and I. -C. Wu, "Optimistic Temporal Difference Learning for
 
 # Experimental TD Learning
 
-TODO
+`experimentaltdlearning.py` implements the TD(0) reinforcement learning algorithm.
+
+The agent determines the best move by evaluating afterstates using n-tuple networks. The afterstate is the state of a game board after the agent makes a move, but before a new tile spawns. N-tuple networks are required as the state space of 2048 is too large to evaluate every individual state. An 8x6 tuple network is combined with a 10x8 tuple network in an attempt to increase feature evaluations to increase the scoring of the agent when performing the game.
+
+The agent also determines the move by evaluating numerous game heuristics that guide the agent to perform moves based on optimal values. The agent implements epsilon-greedy exploration to balance exploitation of learned knowledge.
+
+## Results
+
+Below are the results of playing 14,000 games on 120,000 episodes of training with a learning rate of 0.005. These results are expected to improve with more episodes of training and an increase in the learning rate.
+​
+- Average score: 16,693​
+- Reached 4096 tile: 0.34%​
+- Reached 2048 tile: 21%​
+- Reached 1024 tile: 74.99%
+
+## Usage
+The main function in `tdlearning.py` has three variables that determine the agent's training/playing:
+
+The main function in `tdlearning.py` has three constants that determine the agent's training/playing:
+
+- `SAVE_FILE_NAME` (default null): an agent save file that will be used to either continue training or play the game.
+- `EPISODES_PER_SAVE` (default 5000): the interval of games played during training when the training data will be saved.
+- `LEARN` (default true): if true, the agent will update its policy after every game played; otherwise, it will play using its current policy.
+
+To run the agent:
+
+```
+$ python3 tdlearningagent.py
+```
 
 # Expectimax Agent
 
